@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SystemSweep</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>SystemSweep</h1>
+            <nav>
+                <button id="nav-dashboard">Dashboard</button>
+                <button id="nav-scanner">Scan</button>
+                <button id="nav-settings">Settings</button>
+            </nav>
+        </header>
+        <main id="content">
+            <!-- Content dynamic here -->
+            <div class="dashboard-card">
+                <h2>System Health</h2>
+                <div id="disk-info">Loading...</div>
+                <button id="quick-scan">Quick Scan</button>
+            </div>
+        </main>
+        <footer>
+            <div id="status-bar">Ready</div>
+        </footer>
+    </div>
+    <script src="scripts/app.js"></script>
+</body>
+</html>

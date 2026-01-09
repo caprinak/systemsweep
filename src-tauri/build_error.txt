@@ -1,0 +1,5 @@
+    Updating crates.io index
+error: failed to select a version for the requirement `disk-types = "^0.4"`
+candidate versions found which didn't match: 0.1.5, 0.1.4, 0.1.2, ...
+location searched: crates.io index
+required by package `desktop-cleaner v1.0.0 (E:\KHOA\HAPPY_CODING\CODER THAN THANH\systemsweep\src-tauri)`

@@ -1,0 +1,12 @@
+# Tauri build artifacts
+target/
+binaries/
+
+# Platform specific
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Others
+Cargo.lock
