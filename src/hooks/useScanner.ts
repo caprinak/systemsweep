@@ -48,6 +48,7 @@ export function useScanner() {
                 old_files: { label: 'Old Files', icon: 'clock' },
                 trash: { label: 'Trash', icon: 'trash-2' },
                 downloads: { label: 'Downloads', icon: 'download' },
+                developer_cache: { label: 'Developer Cache', icon: 'code' },
             };
 
             const stats = Array.from(statsMap.entries()).map(([category, data]) => ({

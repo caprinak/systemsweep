@@ -78,6 +78,71 @@ impl CleanupRule {
                 description: "Remove thumbnail cache files".to_string(),
                 risk_level: RiskLevel::Safe,
             },
+            Self {
+                id: "npm_cache".to_string(),
+                name: "NPM Cache".to_string(),
+                enabled: true,
+                category: FileCategory::DeveloperCache,
+                patterns: vec![],
+                extensions: vec![],
+                directories: vec![
+                    "npm-cache".to_string(),
+                    ".npm".to_string(),
+                ],
+                min_age_days: None,
+                min_size_bytes: None,
+                max_size_bytes: None,
+                description: "Clear Node.js package manager cache".to_string(),
+                risk_level: RiskLevel::Safe,
+            },
+            Self {
+                id: "gradle_cache".to_string(),
+                name: "Gradle Cache".to_string(),
+                enabled: true,
+                category: FileCategory::DeveloperCache,
+                patterns: vec![],
+                extensions: vec![],
+                directories: vec![
+                    ".gradle/caches".to_string(),
+                ],
+                min_age_days: None,
+                min_size_bytes: None,
+                max_size_bytes: None,
+                description: "Clear Gradle build cache".to_string(),
+                risk_level: RiskLevel::Safe,
+            },
+            Self {
+                id: "maven_cache".to_string(),
+                name: "Maven Cache".to_string(),
+                enabled: true,
+                category: FileCategory::DeveloperCache,
+                patterns: vec![],
+                extensions: vec![],
+                directories: vec![
+                    ".m2/repository".to_string(),
+                ],
+                min_age_days: None,
+                min_size_bytes: None,
+                max_size_bytes: None,
+                description: "Clear Maven dependency cache".to_string(),
+                risk_level: RiskLevel::Safe,
+            },
+            Self {
+                id: "cargo_cache".to_string(),
+                name: "Rust Cargo Cache".to_string(),
+                enabled: true,
+                category: FileCategory::DeveloperCache,
+                patterns: vec![],
+                extensions: vec![],
+                directories: vec![
+                    ".cargo/registry/cache".to_string(),
+                ],
+                min_age_days: None,
+                min_size_bytes: None,
+                max_size_bytes: None,
+                description: "Clear Rust Cargo registry cache".to_string(),
+                risk_level: RiskLevel::Safe,
+            },
         ];
 
         // Add platform specific directories to rules
@@ -166,7 +231,84 @@ impl RuleEngine {
                 return (rule.category.clone(), rule.risk_level.clone(), Some(rule.description.clone()));
             }
         }
-
         (FileCategory::Unknown, RiskLevel::Low, None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::path::PathBuf;
+
+    fn get_temp_file_metadata(name: &str) -> (PathBuf, std::fs::Metadata) {
+        let mut path = std::env::temp_dir();
+        let unique_name = format!(
+            "systemsweep_test_{}_{}",
+            name,
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        );
+        path.push(unique_name);
+        let _file = File::create(&path).unwrap();
+        let metadata = std::fs::metadata(&path).unwrap();
+        (path, metadata)
+    }
+
+    fn cleanup_file(path: PathBuf) {
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn test_default_rules_contain_developer_caches() {
+        let rules = CleanupRule::default_rules();
+        let ids: Vec<&str> = rules.iter().map(|r| r.id.as_str()).collect();
+        assert!(ids.contains(&"npm_cache"), "Default rules missing npm_cache");
+        assert!(ids.contains(&"gradle_cache"), "Default rules missing gradle_cache");
+        assert!(ids.contains(&"maven_cache"), "Default rules missing maven_cache");
+        assert!(ids.contains(&"cargo_cache"), "Default rules missing cargo_cache");
+    }
+
+    #[test]
+    fn test_categorize_by_extension() {
+        let rules = CleanupRule::default_rules();
+        let engine = RuleEngine::new(rules);
+        
+        let (path, metadata) = get_temp_file_metadata("test.tmp");
+        let (category, risk, _) = engine.categorize(&path, &metadata);
+        assert_eq!(category, FileCategory::Temporary);
+        assert_eq!(risk, RiskLevel::Safe);
+        cleanup_file(path);
+
+        // A file without any matching rule extension
+        let (path2, metadata2) = get_temp_file_metadata("test.unknown_ext");
+        let (category2, _, _) = engine.categorize(&path2, &metadata2);
+        assert_eq!(category2, FileCategory::Unknown);
+        cleanup_file(path2);
+    }
+
+    #[test]
+    fn test_categorize_by_directory() {
+        let rules = CleanupRule::default_rules();
+        let engine = RuleEngine::new(rules);
+        
+        let mut path = std::env::temp_dir();
+        path.push("npm-cache");
+        let _ = std::fs::create_dir_all(&path);
+        
+        path.push("test_pkg.tgz");
+        let _file = File::create(&path).unwrap();
+        let metadata = std::fs::metadata(&path).unwrap();
+        
+        let (category, risk, _) = engine.categorize(&path, &metadata);
+        assert_eq!(category, FileCategory::DeveloperCache);
+        assert_eq!(risk, RiskLevel::Safe);
+        
+        let _ = std::fs::remove_file(&path);
+        let mut dir_path = path.clone();
+        dir_path.pop();
+        let _ = std::fs::remove_dir(dir_path);
     }
 }

@@ -23,7 +23,8 @@ export type FileType =
     | 'old'
     | 'browser'
     | 'system'
-    | 'trash';
+    | 'trash'
+    | 'developer_cache';
 
 export type CleanupCategory =
     | 'system_cache'
@@ -35,7 +36,8 @@ export type CleanupCategory =
     | 'large_files'
     | 'old_files'
     | 'trash'
-    | 'downloads';
+    | 'downloads'
+    | 'developer_cache';
 
 export type RiskLevel = 'safe' | 'low' | 'medium' | 'high';
 

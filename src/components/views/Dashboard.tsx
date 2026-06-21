@@ -42,8 +42,8 @@ const mockChartData = [
 
 export function Dashboard() {
     const { systemHealth } = useSystemHealth();
-    const { isScanning, startScan, scanResults, categoryStats } = useScanner();
-    const { setCurrentView } = useAppStore();
+    const { isScanning, startScan, scanResults } = useScanner();
+    const { setCurrentView, categoryStats } = useAppStore();
 
     const quickActions = [
         {
@@ -52,7 +52,7 @@ export function Dashboard() {
             description: 'Scan for junk files and cache',
             icon: <FileSearch className="w-6 h-6" />,
             color: 'from-blue-500 to-blue-600',
-            action: () => startScan(['system_cache', 'temp_files', 'browser_cache']),
+            action: () => { startScan(['system_cache', 'temp_files', 'browser_cache']); },
         },
         {
             id: 'empty-trash',
@@ -60,7 +60,7 @@ export function Dashboard() {
             description: 'Clear recycle bin contents',
             icon: <Trash2 className="w-6 h-6" />,
             color: 'from-red-500 to-red-600',
-            action: () => setCurrentView('scanner'),
+            action: () => { setCurrentView('scanner'); },
         },
         {
             id: 'find-duplicates',
@@ -68,7 +68,7 @@ export function Dashboard() {
             description: 'Detect duplicate files',
             icon: <HardDrive className="w-6 h-6" />,
             color: 'from-purple-500 to-purple-600',
-            action: () => setCurrentView('duplicates'),
+            action: () => { setCurrentView('duplicates'); },
         },
         {
             id: 'old-files',
@@ -76,7 +76,7 @@ export function Dashboard() {
             description: 'Find unused old files',
             icon: <Clock className="w-6 h-6" />,
             color: 'from-orange-500 to-orange-600',
-            action: () => setCurrentView('old-files'),
+            action: () => { setCurrentView('old-files'); },
         },
     ];
 
@@ -271,7 +271,7 @@ export function Dashboard() {
                                 </Button>
                             </div>
                         ) : (
-                            categoryStats.slice(0, 5).map((stat, index) => (
+                            categoryStats.slice(0, 5).map((stat: any, index: number) => (
                                 <motion.div
                                     key={stat.category}
                                     initial={{ opacity: 0, x: -20 }}
@@ -290,7 +290,7 @@ export function Dashboard() {
                                         </div>
                                         <Progress
                                             value={stat.size}
-                                            max={categoryStats.reduce((acc, s) => acc + s.size, 0)}
+                                            max={categoryStats.reduce((acc: number, s: any) => acc + s.size, 0)}
                                             size="sm"
                                         />
                                     </div>

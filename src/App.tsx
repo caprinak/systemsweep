@@ -25,9 +25,9 @@ function App() {
             case 'settings':
                 return <SettingsView />;
             case 'large-files':
-                return <div className="p-10 text-center text-dark-500">Large Files Module Coming Soon</div>;
+                return <Scanner />;
             case 'old-files':
-                return <div className="p-10 text-center text-dark-500">Old Files Module Coming Soon</div>;
+                return <Scanner />;
             case 'privacy':
                 return <div className="p-10 text-center text-dark-500">Privacy Module Coming Soon</div>;
             case 'history':

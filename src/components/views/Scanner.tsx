@@ -9,7 +9,7 @@ import { Button } from '../ui/Button';
 import { CircularProgress, Progress } from '../ui/Progress';
 import { Badge } from '../ui/Badge';
 import { formatBytes } from '../../utils/format';
-import { CleanupCategory } from '../../types';
+import { CleanupCategory } from '../../types/index';
 import { useAppStore } from '../../stores/appStore';
 
 const CATEGORIES: { id: CleanupCategory; label: string; description: string }[] = [
@@ -17,6 +17,8 @@ const CATEGORIES: { id: CleanupCategory; label: string; description: string }[] 
     { id: 'browser_cache', label: 'Browser Cache', description: 'Web browsing history and cache' },
     { id: 'temp_files', label: 'Temporary Files', description: 'App installation and runtime temp files' },
     { id: 'log_files', label: 'Log Files', description: 'System and application logs' },
+    { id: 'developer_cache', label: 'Developer Cache', description: 'Node.js, Maven, Gradle, Rust caches' },
+    { id: 'large_files', label: 'Large Files', description: 'Files over a specific size threshold' },
     { id: 'trash', label: 'Trash', description: 'Recycle bin contents' },
 ];
 
@@ -126,8 +128,8 @@ export function Scanner() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className={`group flex items-center gap-4 p-3 rounded-lg border transition-colors ${result.isSelected
-                                    ? 'bg-primary-50 dark:bg-primary-900/10 border-primary-200 dark:border-primary-800'
-                                    : 'bg-white dark:bg-dark-900 border-dark-200 dark:border-dark-800 hover:border-dark-300'
+                                ? 'bg-primary-50 dark:bg-primary-900/10 border-primary-200 dark:border-primary-800'
+                                : 'bg-white dark:bg-dark-900 border-dark-200 dark:border-dark-800 hover:border-dark-300'
                                 }`}
                             onClick={() => toggleResultSelection(result.id)}
                         >
@@ -179,16 +181,16 @@ export function Scanner() {
                     <Card
                         key={category.id}
                         className={`cursor-pointer transition-all ${selectedCategories.includes(category.id)
-                                ? 'ring-2 ring-primary-500 shadow-md'
-                                : 'opacity-70 hover:opacity-100'
+                            ? 'ring-2 ring-primary-500 shadow-md'
+                            : 'opacity-70 hover:opacity-100'
                             }`}
                         padding="md"
                     >
                         <div onClick={() => toggleCategory(category.id)}>
                             <div className="flex items-center justify-between mb-2">
                                 <div className={`p-2 rounded-lg ${selectedCategories.includes(category.id)
-                                        ? 'bg-primary-100 text-primary-600'
-                                        : 'bg-dark-100 text-dark-500'
+                                    ? 'bg-primary-100 text-primary-600'
+                                    : 'bg-dark-100 text-dark-500'
                                     }`}>
                                     <Filter className="w-5 h-5" />
                                 </div>

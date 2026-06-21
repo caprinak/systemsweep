@@ -6,7 +6,7 @@ import { Toggle } from '../ui/Toggle';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import * as api from '../../utils/api';
-import { StartupItem } from '../../types';
+import { StartupItem } from '../../types/index';
 
 export function Startup() {
     const [items, setItems] = useState<StartupItem[]>([]);

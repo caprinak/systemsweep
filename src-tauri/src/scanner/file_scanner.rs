@@ -280,3 +280,92 @@ pub fn is_hidden_file(path: &Path) -> bool {
         .map(|n| n.starts_with('.'))
         .unwrap_or(false)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_categorize_file_fallback_logic() {
+        assert_eq!(categorize_file_fallback(Path::new("test.zip")), FileCategory::Archive);
+        assert_eq!(categorize_file_fallback(Path::new("test.mp4")), FileCategory::Media);
+        assert_eq!(categorize_file_fallback(Path::new("test.json")), FileCategory::Config);
+        assert_eq!(categorize_file_fallback(Path::new("test.exe")), FileCategory::Executable);
+        assert_eq!(categorize_file_fallback(Path::new("test.pdf")), FileCategory::Document);
+        assert_eq!(categorize_file_fallback(Path::new("test.log")), FileCategory::Log);
+        assert_eq!(categorize_file_fallback(Path::new("test.tmp")), FileCategory::Temporary);
+        assert_eq!(categorize_file_fallback(Path::new("test.unknown")), FileCategory::Unknown);
+        assert_eq!(categorize_file_fallback(Path::new("some/cache_dir/file.txt")), FileCategory::Cache);
+    }
+
+    #[test]
+    fn test_is_hidden_file_logic() {
+        assert!(is_hidden_file(Path::new(".gitignore")));
+        assert!(is_hidden_file(Path::new("sub/.hidden")));
+        assert!(!is_hidden_file(Path::new("normal_file.txt")));
+        assert!(!is_hidden_file(Path::new("dir/file.txt")));
+    }
+
+    #[test]
+    fn test_passes_filters() {
+        let scanner_default = FileScanner::new(ScanOptions::default());
+        
+        let now = chrono::Utc::now();
+        let scanned_normal = ScannedFile {
+            path: PathBuf::from("test.txt"),
+            size: 100,
+            modified: now,
+            created: None,
+            accessed: None,
+            file_type: FileType::File,
+            category: FileCategory::Document,
+            hash: None,
+            is_hidden: false,
+            is_system: false,
+            risk_level: RiskLevel::Safe,
+            description: None,
+        };
+
+        let scanned_hidden = ScannedFile {
+            path: PathBuf::from(".hidden"),
+            size: 100,
+            modified: now,
+            created: None,
+            accessed: None,
+            file_type: FileType::File,
+            category: FileCategory::Document,
+            hash: None,
+            is_hidden: true,
+            is_system: false,
+            risk_level: RiskLevel::Safe,
+            description: None,
+        };
+
+        // Default options do not include hidden files
+        assert!(scanner_default.passes_filters(&scanned_normal));
+        assert!(!scanner_default.passes_filters(&scanned_hidden));
+
+        // Scanner with include_hidden
+        let scanner_hidden = FileScanner::new(ScanOptions {
+            include_hidden: true,
+            ..Default::default()
+        });
+        assert!(scanner_hidden.passes_filters(&scanned_hidden));
+
+        // Size filters
+        let scanner_size = FileScanner::new(ScanOptions {
+            min_size: Some(200),
+            ..Default::default()
+        });
+        assert!(!scanner_size.passes_filters(&scanned_normal));
+
+        // Category filter
+        let scanner_cat = FileScanner::new(ScanOptions {
+            categories: vec![FileCategory::Archive],
+            ..Default::default()
+        });
+        assert!(!scanner_cat.passes_filters(&scanned_normal));
+    }
+}
+

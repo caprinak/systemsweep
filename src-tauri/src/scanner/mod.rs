@@ -51,6 +51,7 @@ pub enum FileCategory {
     Config,
     System,
     BrowserCache,
+    DeveloperCache,
     Unknown,
 }
 
